@@ -1,14 +1,15 @@
 <!doctype html>
 <html lang="pt-BR"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Pulso · Agência de conteúdo viral</title><meta name="theme-color" content="#12102B">
+<title>Pulso · Agência de conteúdo viral</title><meta name="theme-color" content="#12102B"><link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="icon-180.png"><link rel="icon" href="icon-192.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Pulso">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;800&family=Figtree:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;800&family=Figtree:wght@400;600;700&family=Bangers&family=Anton&family=Bebas+Neue&family=Permanent+Marker&family=Lilita+One&family=Luckiest+Guy&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles.css"></head><body>
+<div id="tools"><button id="th" aria-label="Alternar tema claro/escuro">☀ Claro</button><input type="color" id="ac" value="#ff3d81" aria-label="Cor de destaque" title="Cor de destaque"></div>
 <nav id="nav"><b class="logo">Pulso</b>
 <button data-v="t" class="on"><i>◉</i>Tendências</button><button data-v="c"><i>✎</i>Conteúdo</button><button data-v="i"><i>▣</i>Imagens</button><button data-v="v"><i>▶</i>Vídeo</button><button data-v="p"><i>➤</i>Publicar</button><button data-v="b"><i>☰</i>Chatbot</button><button data-v="s"><i>⚙</i>Ajustes</button></nav>
 <main>
-<section id="t" class="on"><h1>Sobre o que você quer falar?</h1>
+<section id="t" class="on"><div id="inst" class="card" hidden><b>Instale o app no seu celular</b> <span id="it" class="mut"></span> <button id="ib" class="pri">Instalar</button></div><h1>Sobre o que você quer falar?</h1>
 <p class="mut">Digite seu nicho. A Pulso busca o que está em alta e entrega 3 assuntos com maior potencial de viralizar.</p>
 <div class="row big"><input id="niche" placeholder="ex.: tecnologia, fitness, finanças…" autocomplete="off"><button id="go" class="pri">Encontrar assuntos</button></div>
 <div id="topics"></div><p class="mut sm">Dados reais do Hacker News (últimos 7 dias): ótimo para tecnologia. Outros nichos recebem ângulos virais prontos.</p></section>
@@ -16,21 +17,21 @@
 <section id="c"><h1>Conteúdo</h1><div id="ctitle" class="mut">Escolha um assunto na aba Tendências.</div>
 <div class="grid2"><div><div class="row"><button id="gen" class="pri">Gerar post</button><select id="pf"><option value="ig">Instagram</option><option value="tt">TikTok</option><option value="x">X / Threads</option><option value="li">LinkedIn</option></select></div>
 <textarea id="post" rows="14" placeholder="Seu post aparece aqui. Edite à vontade: a nota viral atualiza ao vivo."></textarea></div>
-<div class="score"><svg viewBox="0 0 120 120"><defs><linearGradient id="gr"><stop offset="0" stop-color="#FFC857"/><stop offset="1" stop-color="#FF3D81"/></linearGradient></defs><circle cx="60" cy="60" r="52" class="bg"/><circle id="ring" cx="60" cy="60" r="52" class="fg"/></svg><div id="num">0</div><small>potencial viral</small><ul id="tips"></ul></div></div></section>
+<div class="score"><svg viewBox="0 0 120 120"><defs><linearGradient id="gr"><stop offset="0" stop-color="#FFC857"/><stop offset="1" stop-color="#FF3D81"/></linearGradient></defs><circle cx="60" cy="60" r="52" class="bg"/><circle id="ring" cx="60" cy="60" r="52" class="fg"/></svg><div id="num">0</div><small>potencial viral</small><ul id="tips"></ul></div></div><div id="an" class="card" hidden></div></section>
 
 <section id="i"><h1>Imagens e carrossel</h1><div class="row"><select id="fmt"><option value="1080,1350">Feed 4:5</option><option value="1080,1080">Quadrado</option><option value="1080,1920">Story / Reels</option></select><span id="themes"></span></div>
-<div class="row" id="slides"></div><canvas id="cv" width="1080" height="1350"></canvas>
+<div class="row txtbar"></div><div class="row"><button id="aiimg" class="pri">Gerar imagem com IA</button><button id="ph">Buscar fotos</button><button id="nobg">Sem imagem</button></div><div id="gal" class="row gal"></div><p id="credit" class="mut sm"></p><div class="row" id="slides"></div><canvas id="cv" width="1080" height="1350"></canvas>
 <div class="row"><button id="dl" class="pri">Baixar slide</button><button id="dla">Baixar todos</button></div></section>
 
-<section id="v"><h1>Vídeo</h1><div class="grid2"><div class="card"><h2>Vídeo animado do post</h2><p class="mut">Transforma os slides em vídeo vertical 9:16.</p><button id="mk" class="pri">Gerar vídeo</button></div>
-<div class="card"><h2>Editar seu vídeo</h2><input type="file" id="file" accept="video/*"><div class="row"><label>Início (s)<input id="ss" type="number" value="0" min="0" step="0.5"></label><label>Fim (s)<input id="ee" type="number" value="15" min="1" step="0.5"></label></div><input id="cap" placeholder="Legenda na tela"><button id="ed" class="pri">Cortar e legendar</button></div></div>
-<video id="vin" playsinline hidden></video><canvas id="vc" width="1080" height="1920"></canvas><div id="vout"></div></section>
+<section id="v"><h1>Vídeo</h1><div class="row txtbar"></div><div class="grid2"><div class="card"><h2>Vídeo animado do post</h2><p class="mut">Transforma os slides em vídeo vertical 9:16.</p><button id="mk" class="pri">Gerar vídeo</button></div>
+<div class="card"><h2>Editar seu vídeo</h2><input type="file" id="file" accept="video/*"><div class="row"><label>Início (s)<input id="ss" type="number" value="0" min="0" step="0.5"></label><label>Fim (s)<input id="ee" type="number" value="15" min="1" step="0.5"></label></div><input id="cap" placeholder="Legenda na tela"><button id="vab">Analisar com IA</button><button id="ed" class="pri">Cortar e legendar</button></div></div>
+<div id="va" class="card" hidden></div><video id="vin" playsinline hidden></video><canvas id="vc" width="1080" height="1920"></canvas><div id="vout"></div></section>
 
 <section id="p"><h1>Publicar</h1><p class="mut">Abre cada rede com o texto pronto. No celular, “Compartilhar” envia imagem + legenda direto para o app.</p><div id="pubs" class="row wrap"></div>
 <div class="card"><h2>Automático via webhook</h2><p class="mut">Cole a URL de um webhook do Make, Zapier ou n8n (planos grátis) em Ajustes e envie o post para o seu fluxo.</p><button id="hook">Enviar ao webhook</button></div>
 <p class="mut sm">Melhores horários no Brasil: 12h, 18h e 20h–22h; terça a quinta.</p></section>
 
-<section id="b"><h1>Chatbot de atendimento</h1><p class="mut">Cole a mensagem de um seguidor e receba a resposta. Regras editáveis em Ajustes.</p><div id="chat"></div><div class="row"><input id="msg" placeholder="Mensagem do seguidor…"><button id="send" class="pri">Responder</button></div></section>
+<section id="b"><h1>Chatbot de atendimento</h1><p class="mut">Cole a mensagem de um seguidor e receba a resposta. Regras editáveis em Ajustes.</p><div id="chat"></div><div class="row"><input id="msg" placeholder="Mensagem do seguidor…"><button id="send" class="pri">Responder</button></div><div class="card"><h2>Responder nas redes</h2><p class="mut">Telegram: cole o token do @BotFather em Ajustes e ligue aqui (funciona com o app aberto). Para responder 24h no Telegram, Instagram e Messenger, use <code>automacao/cloudflare-worker.js</code> (grátis).</p><button id="tgb">Ligar bot Telegram</button></div></section>
 
-<section id="s"><h1>Ajustes</h1><div class="card"><label>Chave Gemini (grátis em aistudio.google.com/apikey)<input id="k" type="password" placeholder="opcional: melhora textos e chatbot"></label><label>Modelo<input id="m"></label><label>Seu @<input id="h"></label><label>URL do webhook<input id="w" placeholder="https://hook.make.com/…"></label><label>Regras do chatbot (palavras,chave =&gt; resposta)<textarea id="r" rows="7"></textarea></label><button id="save" class="pri">Salvar</button><p class="mut sm">Tudo fica só no seu navegador.</p></div></section>
+<section id="s"><h1>Ajustes</h1><div class="card"><label>Chave Gemini opcional (sem chave, usa a IA gratuita Pollinations)<input id="k" type="password" placeholder="opcional: melhora textos e chatbot"></label><label>Modelo<input id="m"></label><label>Seu @<input id="h"></label><label>URL do webhook<input id="w" placeholder="https://hook.make.com/…"></label><label>Token do bot Telegram (@BotFather)<input id="tg" type="password"></label><label>Regras do chatbot (palavras,chave =&gt; resposta)<textarea id="r" rows="7"></textarea></label><button id="save" class="pri">Salvar</button><p class="mut sm">Tudo fica só no seu navegador. Instalar: Android (Chrome ⋮ → Instalar app) · iPhone (Safari → Compartilhar → Adicionar à Tela de Início).</p></div></section>
 </main><div id="toast"></div><script src="app.js"></script></body></html>
