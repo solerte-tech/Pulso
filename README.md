@@ -9,7 +9,7 @@ App web 100% gratuito (HTML + CSS + JS, sem servidor): escolha um nicho, veja 3 
 Para testar local: abra `index.html` no navegador.
 
 ## Recursos gratuitos usados
-- **Tendências:** API pública do Hacker News (sem chave).
+- **Tendências:** notícias recentes do Google Notícias (qualquer assunto) e “em alta agora” do Google Tendências, via RSS.
 - **IA (opcional):** chave grátis do Google Gemini (aistudio.google.com/apikey), guardada só no seu navegador. Sem chave, o app usa modelos locais de texto.
 - **Imagens/vídeo:** Canvas + MediaRecorder do navegador (sem upload para servidores).
 - **Publicação:** links de compartilhamento das redes + Web Share (celular) + webhook para Make/Zapier/n8n (planos grátis).
@@ -37,3 +37,8 @@ Para testar local: abra `index.html` no navegador.
 ## v5 · imagens por IA
 - Fila automática respeitando o limite gratuito (1 imagem a cada ~15 s sem chave). Com chave grátis em enter.pollinations.ai (use a chave pública `pk_`), a espera some.
 - Prompt editável, 6 estilos, **4 variações**, **imagem diferente em cada slide do carrossel**, texto sobre a imagem opcional e **zoom animado (Ken Burns)** nos vídeos.
+
+## v6 · pesquisa ampla e IA à escolha
+- Qualquer assunto: pesquisa no Google Notícias dos últimos 7 dias, agrupa as manchetes parecidas e ranqueia por cobertura e recência. Campo vazio = o que está em alta no Brasil agora.
+- **Provedor de IA à escolha** em Ajustes: gratuito sem chave, Gemini, OpenAI, Claude, Groq, OpenRouter, Mistral, DeepSeek ou qualquer API compatível com OpenAI (inclusive local, como Ollama).
+- Proxy de busca opcional no Worker (`/search`) para deixar a pesquisa mais estável.

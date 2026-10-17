@@ -4,7 +4,10 @@ const SYS='Você atende as redes sociais de uma agência de marketing de conteú
 const FALLBACK='Obrigado pela mensagem! Já vamos te responder em detalhes.';
 const ia=async m=>{try{const r=await fetch('https://text.pollinations.ai/openai',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'openai',messages:[{role:'system',content:SYS},{role:'user',content:m}]})});return(await r.json()).choices[0].message.content}catch{return FALLBACK}};
 const post=(u,b)=>fetch(u,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)});
+const rss=async q=>{const r=await fetch(q?`https://news.google.com/rss/search?q=${encodeURIComponent(q+' when:7d')}&hl=pt-BR&gl=BR&ceid=BR:pt-419`:'https://trends.google.com/trending/rss?geo=BR'),x=await r.text();
+return[...x.matchAll(/<item>([\s\S]*?)<\/item>/g)].slice(0,40).map(m=>{const g=t=>(m[1].match(new RegExp('<'+t+'>(?:<!\\[CDATA\\[)?([\\s\\S]*?)(?:\\]\\]>)?</'+t+'>'))||[])[1]||'';return{title:g('title'),link:g('link'),pubDate:g('pubDate')}})};
 export default{async fetch(req,env){const u=new URL(req.url);
+if(u.pathname=='/search'){let items=[];try{items=await rss(u.searchParams.get('q')||'')}catch{}return new Response(JSON.stringify({items}),{headers:{'Content-Type':'application/json','Access-Control-Allow-Origin':'*'}})}
 if(req.method=='GET')return new Response(u.searchParams.get('hub.verify_token')==env.VERIFY_TOKEN?u.searchParams.get('hub.challenge'):'ok');
 const b=await req.json();
 if(b.message?.text){

@@ -2,28 +2,21 @@ const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
 const st={get:(k,d)=>{try{return JSON.parse(localStorage.getItem('pulso_'+k))??d}catch{return d}},set:(k,v)=>localStorage.setItem('pulso_'+k,JSON.stringify(v))};
 const S={niche:'',topic:null,fmt:[1080,1350],th:0,sl:0};
 const DR='oi,olá,ola,bom dia,boa tarde => Olá! Obrigado por falar com a gente. Como posso ajudar?\npreço,valor,quanto => Os valores variam conforme o projeto. Me conta o que você precisa e envio uma proposta.\ncomo funciona,serviço => Criamos conteúdo, analisamos o potencial viral e publicamos por você. Quer ver um exemplo?\nobrigado,valeu => Por nada! Qualquer dúvida é só chamar.';
-const cfg=()=>({key:'',model:'gemini-2.0-flash',handle:'@seuperfil',hook:'',tg:'',pk:'',rules:DR,...st.get('cfg',{})});
+const cfg=()=>({key:'',model:'',prov:'',base:'',px:'',handle:'@seuperfil',hook:'',tg:'',pk:'',rules:DR,...st.get('cfg',{})});
 const TH=[['#FF3D81','#5B2BFF'],['#29E0FF','#1B1464'],['#FFC857','#FF3D81']];
 function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('on');setTimeout(()=>e.classList.remove('on'),2200)}
 function go(v){$$('section').forEach(s=>s.classList.toggle('on',s.id==v));$$('nav button').forEach(b=>b.classList.toggle('on',b.dataset.v==v));scrollTo(0,0);if(v=='i')drawImg()}
 $$('nav button').forEach(b=>b.onclick=()=>go(b.dataset.v));
-async function ai(p,o={}){const c=cfg(),sys=o.sys||'';let x;
-if(c.key){const r=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${c.model}:generateContent?key=${c.key}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:sys+'\n\n'+p},...(o.imgs||[]).map(d=>({inline_data:{mime_type:'image/jpeg',data:d.split(',')[1]}}))]}]})});if(!r.ok)throw 0;x=(await r.json()).candidates[0].content.parts[0].text}
-else{const r=await fetch('https://text.pollinations.ai/openai',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'openai',messages:[{role:'system',content:sys},{role:'user',content:o.imgs?[{type:'text',text:p},...o.imgs.map(d=>({type:'image_url',image_url:{url:d}}))]:p}]})});if(!r.ok)throw 0;x=(await r.json()).choices[0].message.content}
-return o.json?JSON.parse(x.match(/[\[{][\s\S]*[\]}]/)[0]):x}
+/*ai-v2*/
 const AG={};async function agent(n){if(AG[n]===undefined)try{const r=await fetch(`agentes/${n}.md`);AG[n]=r.ok?await r.text():''}catch{AG[n]=''}return AG[n]}
 
 /* 1. Tendências */
-$('#go').onclick=async()=>{const n=$('#niche').value.trim();if(!n)return toast('Digite um nicho');S.niche=n;const box=$('#topics');box.innerHTML='<p class="mut">Buscando o que está em alta…</p>';let t=[];
-try{const since=Math.floor(Date.now()/1e3)-7*86400,r=await fetch(`https://hn.algolia.com/api/v1/search?tags=story&query=${encodeURIComponent(n)}&numericFilters=created_at_i>${since},points>20&hitsPerPage=50`),d=await r.json();
-t=d.hits.map(h=>({title:h.title,url:h.url,sc:h.points+2*h.num_comments})).sort((a,b)=>b.sc-a.sc).slice(0,3).map(h=>({...h,heat:Math.min(98,Math.round(Math.log10(h.sc+1)*32)),src:'Hacker News'}))}catch{}
-if(t.length<3)t=[...t,...[`O erro nº 1 que iniciantes em ${n} cometem`,`${n}: 5 ferramentas grátis que parecem trapaça`,`O que ninguém conta sobre começar em ${n}`].map((x,i)=>({title:x,heat:72-i*4,src:'Ângulo viral'}))].slice(0,3);
-box.innerHTML='';t.forEach(x=>{const e=document.createElement('div');e.className='topic';e.innerHTML=`<b></b><button class="pri">Usar</button><span class="mut sm">${x.src} · calor ${x.heat}/100</span><div class="heat"><i style="width:${x.heat}%"></i></div>`;e.querySelector('b').textContent=x.title;e.querySelector('button').onclick=()=>{S.topic=x;$('#ctitle').textContent='Assunto: '+x.title;go('c');gen()};box.append(e)})};
+/*go-v2*/
 
 /* 2. Conteúdo + nota viral */
 const loc=(t,n)=>{const h=[`Pare de rolar: ${t.title.slice(0,50)}`,`3 coisas sobre ${n} que ninguém te contou`,`Isso muda o jogo em ${n}?`][Math.floor(Math.random()*3)];return{hook:h,points:[`O que está acontecendo: ${t.title}`,`Por que importa para quem trabalha com ${n}`,`O que você pode fazer hoje a respeito`],cta:'Comente “EU QUERO” e salve este post!',tags:[n.replace(/\W/g,''),'viral','dicas'],alt:[`3 coisas sobre ${n} que ninguém te contou`,`Isso muda o jogo em ${n}?`]}};
 async function gen(){if(!S.topic)return toast('Escolha um assunto antes');const c=cfg();let p;$('#post').value='Gerando…';
-try{p=await ai(`Você é estrategista de redes sociais. Nicho: ${S.niche}. Assunto: "${S.topic.title}". Responda JSON {"hook":"","points":["","",""],"cta":"","tags":["","",""],"alt":["2 ganchos alternativos"]} em português do Brasil. Gancho até 70 caracteres, tom viral, frases curtas, 1-2 emojis.`,{json:1,sys:await agent('content-creator')})}catch{toast('IA indisponível, usei o modelo local')}
+try{p=await ai(`Você é estrategista de redes sociais. Nicho: ${S.niche}. Assunto: "${S.topic.title}".${S.topic.ctx?" Notícias recentes sobre isso: "+S.topic.ctx+".":""} Responda JSON {"hook":"","points":["","",""],"cta":"","tags":["","",""],"alt":["2 ganchos alternativos"]} em português do Brasil. Gancho até 70 caracteres, tom viral, frases curtas, 1-2 emojis.`,{json:1,sys:await agent('content-creator')})}catch{toast('IA indisponível, usei o modelo local')}
 p=p||loc(S.topic,S.niche);S.p=p;$('#post').value=`${p.hook}\n\n${p.points.map(x=>'• '+x).join('\n')}\n\n${p.cta}\n\n${p.tags.map(x=>'#'+x).join(' ')}`;rate();ab();auto()}
 function rate(){cnt();const tx=$('#post').value,pf=$('#pf').value,h=tx.split('\n')[0]||'',w=tx.split(/\s+/).filter(Boolean).length,tg=(tx.match(/#\p{L}+/gu)||[]).length,em=(tx.match(/\p{Extended_Pictographic}/gu)||[]).length;
 const R={ig:[40,120],tt:[20,60],x:[15,40],li:[80,200]}[pf],sn=tx.split(/[.!?\n]+/).filter(Boolean),avg=w/Math.max(1,sn.length);
@@ -77,7 +70,7 @@ $('#msg').onkeydown=e=>{if(e.key=='Enter')$('#send').click()};
 
 /* 7. Ajustes */
 const c0=cfg();$('#k').value=c0.key;$('#m').value=c0.model;$('#h').value=c0.handle;$('#w').value=c0.hook;$('#r').value=c0.rules;$('#tg').value=c0.tg;$('#pk').value=c0.pk;
-$('#save').onclick=()=>{st.set('cfg',{key:$('#k').value.trim(),model:$('#m').value.trim()||'gemini-2.0-flash',handle:$('#h').value.trim(),hook:$('#w').value.trim(),tg:$('#tg').value.trim(),pk:$('#pk').value.trim(),rules:$('#r').value});toast('Salvo')};
+$('#save').onclick=()=>{st.set('cfg',{key:$('#k').value.trim(),model:$('#m').value.trim(),prov:$('#prov').value,base:$('#bu').value.trim(),px:$('#px').value.trim(),handle:$('#h').value.trim(),hook:$('#w').value.trim(),tg:$('#tg').value.trim(),pk:$('#pk').value.trim(),rules:$('#r').value});toast('Salvo')};
 $('#niche').onkeydown=e=>{if(e.key=='Enter')$('#go').click()};rate();
 
 /* v2: IA gratuita, imagens, fontes, tema, PWA, Telegram */
@@ -118,7 +111,7 @@ $('#file').addEventListener('change',()=>$('#vin').addEventListener('loadedmetad
 
 /* v4: piloto automático, ganchos A/B, biblioteca, contador, memória */
 ['Tecnologia','Inteligência artificial','Fitness','Finanças','Games','Marketing digital','Moda','Culinária'].forEach(n=>{const b=document.createElement('button');b.className='chip';b.textContent=n;b.onclick=()=>{$('#niche').value=n;$('#go').click()};$('#nch').append(b)});
-$('#pilot').onclick=async()=>{if(!$('#niche').value.trim())$('#niche').value='Tecnologia';toast('Piloto automático ligado');await $('#go').onclick();$('#topics .topic button')?.click()};
+$('#pilot').onclick=async()=>{toast('Piloto automático ligado');await $('#go').onclick();$('#topics .topic button')?.click()};
 const build=(p,h)=>`${h}\n\n${p.points.map(x=>'• '+x).join('\n')}\n\n${p.cta}\n\n${p.tags.map(x=>'#'+x).join(' ')}`;
 function ab(){const p=S.p;if(!p)return;const hs=[p.hook,...(p.alt||[]).slice(0,2)].filter(Boolean),sc=hs.map(h=>{$('#post').value=build(p,h);rate();return+$('#num').textContent}),best=sc.indexOf(Math.max(...sc)),box=$('#ab');
 const pick=i=>{p.hook=hs[i];$('#post').value=build(p,hs[i]);rate();keep();[...box.children].forEach((c,j)=>c.classList.toggle('on',j==i))};box.innerHTML='';
@@ -153,3 +146,32 @@ for(let n=0;n<4;n++){$('#credit').textContent=`Variação ${n+1} de 4`;const i=a
 const b=document.createElement('button');b.innerHTML=`<img src="${i.src}" alt="Variação ${n+1}">`;b.onclick=()=>{S.bg=i;S.imgs=[];drawImg()};g.append(b);if(!n){S.bg=i;S.imgs=[];drawImg()}}$('#credit').textContent='Toque em uma variação para usar.'};
 $('#all').onclick=async()=>{const pr=fullPrompt(),L=lines();if(!pr)return toast('Escolha um assunto ou descreva a imagem');S.imgs=[];
 for(let n=0;n<L.length;n++){$('#credit').textContent=`Slide ${n+1} de ${L.length}`;const i=await fetchImg(`${pr}, scene inspired by: ${L[n].slice(0,90)}`,...S.fmt,rnd());if(!i){toast('Serviço ocupado. Os demais slides ficam com a imagem principal');break}S.imgs[n]=i;drawImg()}$('#credit').textContent=''};
+
+/* v6: pesquisa ampla (Google Notícias + Tendências) e IA à escolha */
+const PROV={pollinations:{n:'Gratuita (sem chave)',m:''},gemini:{n:'Google Gemini',m:'gemini-2.0-flash'},openai:{n:'OpenAI (ChatGPT)',m:'gpt-4o-mini',u:'https://api.openai.com/v1'},anthropic:{n:'Anthropic Claude',m:'claude-haiku-5-5'},groq:{n:'Groq',m:'llama-3.3-70b-versatile',u:'https://api.groq.com/openai/v1'},openrouter:{n:'OpenRouter',m:'meta-llama/llama-3.3-70b-instruct:free',u:'https://openrouter.ai/api/v1'},mistral:{n:'Mistral',m:'mistral-small-latest',u:'https://api.mistral.ai/v1'},deepseek:{n:'DeepSeek',m:'deepseek-chat',u:'https://api.deepseek.com/v1'},custom:{n:'Outra ou local (compatível com OpenAI, ex.: Ollama)',m:''}};
+async function ai(p,o={}){const c=cfg(),pv=c.prov||(c.key?'gemini':'pollinations'),sys=o.sys||'',im=o.imgs||[],m=c.model||PROV[pv]?.m||'';let x;
+if(pv=='gemini'){const r=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent?key=${c.key}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:sys+'\n\n'+p},...im.map(d=>({inline_data:{mime_type:'image/jpeg',data:d.split(',')[1]}}))]}]})});if(!r.ok)throw 0;x=(await r.json()).candidates[0].content.parts[0].text}
+else if(pv=='anthropic'){const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':c.key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:m,max_tokens:1500,system:sys,messages:[{role:'user',content:[...im.map(d=>({type:'image',source:{type:'base64',media_type:'image/jpeg',data:d.split(',')[1]}})),{type:'text',text:p}]}]})});if(!r.ok)throw 0;x=(await r.json()).content[0].text}
+else{const u=pv=='pollinations'?'https://text.pollinations.ai/openai':(PROV[pv].u||c.base||'').replace(/\/$/,'')+'/chat/completions',h={'Content-Type':'application/json'};if(pv!='pollinations'&&c.key)h.Authorization='Bearer '+c.key;
+const r=await fetch(u,{method:'POST',headers:h,body:JSON.stringify({model:pv=='pollinations'?'openai':m,messages:[{role:'system',content:sys},{role:'user',content:im.length?[{type:'text',text:p},...im.map(d=>({type:'image_url',image_url:{url:d}}))]:p}]})});if(!r.ok)throw 0;x=(await r.json()).choices[0].message.content}
+return o.json?JSON.parse(x.match(/[\[{][\s\S]*[\]}]/)[0]):x}
+const STOP=new Set('para como mais pela pelo sobre entre depois apos ainda sobre quando onde seus suas nova novo novos novas with from that this have your what when will after about'.split(' '));
+const words=t=>[...new Set(t.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9 ]/g,' ').split(/\s+/).filter(w=>w.length>3&&!STOP.has(w)))];
+const jac=(a,b)=>{const s=new Set(a),n=b.filter(w=>s.has(w)).length;return n/Math.max(1,a.length+b.length-n)};
+async function feed(q){const c=cfg(),rss=q?`https://news.google.com/rss/search?q=${encodeURIComponent(q+' when:7d')}&hl=pt-BR&gl=BR&ceid=BR:pt-419`:'https://trends.google.com/trending/rss?geo=BR';let it=[];
+try{if(c.px)it=(await(await fetch(`${c.px.replace(/\/$/,'')}/search?q=${encodeURIComponent(q)}`)).json()).items||[]}catch{}
+if(!it.length)try{it=(await(await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rss)}`)).json()).items||[]}catch{}
+return it.map(x=>({title:(x.title||'').replace(/\s+-\s+[^-]+$/,'').trim(),date:Date.parse(x.pubDate)||0})).filter(x=>x.title)}
+function rank(items,hasQ){const f={},now=Date.now();items.forEach(i=>{i.w=words(i.title);i.w.forEach(w=>f[w]=(f[w]||0)+1)});
+items.forEach((i,k)=>{i.sc=hasQ?i.w.reduce((s,w)=>s+f[w]-1,0)+(i.date?Math.max(0,3-(now-i.date)/864e5):0):100-k});items.sort((a,b)=>b.sc-a.sc);
+const out=[];for(const i of items){if(out.every(o=>jac(o.w,i.w)<.4))out.push(i);if(out.length==3)break}const mx=out[0]?.sc||1;
+return out.map((i,k)=>({title:i.title,heat:Math.max(55,Math.round(98-k*7-(1-i.sc/mx)*15)),ctx:items.filter(o=>o!==i&&jac(o.w,i.w)>=.2).slice(0,3).map(o=>o.title).join(' | ')}))}
+$('#go').onclick=async()=>{const n=$('#niche').value.trim();S.niche=n||'assuntos em alta';const box=$('#topics');box.innerHTML='<p class="mut">Pesquisando o que está em alta…</p>';let t=[];
+try{t=rank(await feed(n),!!n)}catch{}
+if(t.length<3)try{const a=await ai(`Liste 3 assuntos em alta, com potencial de viralizar, sobre "${n||'qualquer tema popular no Brasil'}". Responda só JSON: {"t":["","",""]}`,{json:1});t=[...t,...a.t.map((x,i)=>({title:x,heat:72-i*4}))].slice(0,3)}catch{}
+if(t.length<3)t=[...t,...[`O erro nº 1 que iniciantes em ${S.niche} cometem`,`5 ferramentas grátis em ${S.niche} que parecem trapaça`,`O que ninguém conta sobre ${S.niche}`].map((x,i)=>({title:x,heat:70-i*4}))].slice(0,3);
+box.innerHTML='';t.forEach(x=>{const e=document.createElement('div');e.className='topic';e.innerHTML='<b></b><button class="pri">Usar</button><span class="mut sm"></span><div class="heat"><i></i></div>';e.querySelector('b').textContent=x.title;e.querySelector('.sm').textContent=`Potencial viral ${x.heat}/100`;e.querySelector('i').style.width=x.heat+'%';e.querySelector('button').onclick=()=>{S.topic=x;$('#ctitle').textContent='Assunto: '+x.title;go('c');gen()};box.append(e)})};
+$('#prov').innerHTML=Object.entries(PROV).map(([k,v])=>`<option value="${k}">${v.n}</option>`).join('');
+{const c=cfg();$('#prov').value=c.prov||(c.key?'gemini':'pollinations');$('#bu').value=c.base||'';$('#px').value=c.px||''}
+function pvUI(){const v=$('#prov').value;$('#kl').hidden=v=='pollinations';$('#bl').hidden=v!='custom';$('#m').placeholder=PROV[v].m||'nome do modelo'}
+$('#prov').onchange=()=>{pvUI();$('#m').value=''};pvUI();

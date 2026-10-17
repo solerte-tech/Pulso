@@ -36,3 +36,6 @@
 - **Segurança:** nunca coloque tokens no código nem no GitHub. Use sempre *Secrets*.
 - **Limites:** o plano grátis da Cloudflare tem limite diário de requisições, e a IA gratuita pode ficar lenta ou indisponível. Nesse caso o bot envia uma mensagem padrão.
 - **Privacidade:** as mensagens passam por serviços de terceiros (Cloudflare e Pollinations). Avise seus clientes e não trate dados sensíveis pelo bot.
+
+## Extra · Proxy de busca do app (opcional)
+O mesmo Worker responde em `/search?q=assunto` com as manchetes recentes do Google Notícias (ou as tendências do Brasil, se `q` estiver vazio). Cole a URL do Worker em **Ajustes → URL do seu proxy de busca** para a pesquisa do app ficar mais estável.

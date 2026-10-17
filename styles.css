@@ -42,3 +42,5 @@ nav .logo{display:block;width:150px;height:auto;margin:0 6px 16px;background:non
 .mlogo{display:none;position:fixed;top:8px;left:12px;height:40px;z-index:6}@media(max-width:800px){.mlogo{display:block}nav .logo{display:none}main{padding-top:60px}}
 
 .chips button{padding:6px 14px;font-weight:600;border-radius:99px;font-size:.88rem}#lib .topic:first-child{border-color:var(--w2);box-shadow:none}#ab .chip{font-size:.85rem}
+
+[hidden]{display:none!important}label select{width:100%}
