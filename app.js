@@ -2,7 +2,7 @@ const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
 const st={get:(k,d)=>{try{return JSON.parse(localStorage.getItem('pulso_'+k))??d}catch{return d}},set:(k,v)=>localStorage.setItem('pulso_'+k,JSON.stringify(v))};
 const S={niche:'',topic:null,fmt:[1080,1350],th:0,sl:0};
 const DR='oi,olá,ola,bom dia,boa tarde => Olá! Obrigado por falar com a gente. Como posso ajudar?\npreço,valor,quanto => Os valores variam conforme o projeto. Me conta o que você precisa e envio uma proposta.\ncomo funciona,serviço => Criamos conteúdo, analisamos o potencial viral e publicamos por você. Quer ver um exemplo?\nobrigado,valeu => Por nada! Qualquer dúvida é só chamar.';
-const cfg=()=>({key:'',model:'gemini-2.0-flash',handle:'@seuperfil',hook:'',tg:'',rules:DR,...st.get('cfg',{})});
+const cfg=()=>({key:'',model:'gemini-2.0-flash',handle:'@seuperfil',hook:'',tg:'',pk:'',rules:DR,...st.get('cfg',{})});
 const TH=[['#FF3D81','#5B2BFF'],['#29E0FF','#1B1464'],['#FFC857','#FF3D81']];
 function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('on');setTimeout(()=>e.classList.remove('on'),2200)}
 function go(v){$$('section').forEach(s=>s.classList.toggle('on',s.id==v));$$('nav button').forEach(b=>b.classList.toggle('on',b.dataset.v==v));scrollTo(0,0);if(v=='i')drawImg()}
@@ -21,11 +21,11 @@ if(t.length<3)t=[...t,...[`O erro nº 1 que iniciantes em ${n} cometem`,`${n}: 5
 box.innerHTML='';t.forEach(x=>{const e=document.createElement('div');e.className='topic';e.innerHTML=`<b></b><button class="pri">Usar</button><span class="mut sm">${x.src} · calor ${x.heat}/100</span><div class="heat"><i style="width:${x.heat}%"></i></div>`;e.querySelector('b').textContent=x.title;e.querySelector('button').onclick=()=>{S.topic=x;$('#ctitle').textContent='Assunto: '+x.title;go('c');gen()};box.append(e)})};
 
 /* 2. Conteúdo + nota viral */
-const loc=(t,n)=>{const h=[`Pare de rolar: ${t.title.slice(0,50)}`,`3 coisas sobre ${n} que ninguém te contou`,`Isso muda o jogo em ${n}?`][Math.floor(Math.random()*3)];return{hook:h,points:[`O que está acontecendo: ${t.title}`,`Por que importa para quem trabalha com ${n}`,`O que você pode fazer hoje a respeito`],cta:'Comente “EU QUERO” e salve este post!',tags:[n.replace(/\W/g,''),'viral','dicas']}};
+const loc=(t,n)=>{const h=[`Pare de rolar: ${t.title.slice(0,50)}`,`3 coisas sobre ${n} que ninguém te contou`,`Isso muda o jogo em ${n}?`][Math.floor(Math.random()*3)];return{hook:h,points:[`O que está acontecendo: ${t.title}`,`Por que importa para quem trabalha com ${n}`,`O que você pode fazer hoje a respeito`],cta:'Comente “EU QUERO” e salve este post!',tags:[n.replace(/\W/g,''),'viral','dicas'],alt:[`3 coisas sobre ${n} que ninguém te contou`,`Isso muda o jogo em ${n}?`]}};
 async function gen(){if(!S.topic)return toast('Escolha um assunto antes');const c=cfg();let p;$('#post').value='Gerando…';
-try{p=await ai(`Você é estrategista de redes sociais. Nicho: ${S.niche}. Assunto: "${S.topic.title}". Responda JSON {"hook":"","points":["","",""],"cta":"","tags":["","",""]} em português do Brasil. Gancho até 70 caracteres, tom viral, frases curtas, 1-2 emojis.`,{json:1,sys:await agent('content-creator')})}catch{toast('IA indisponível, usei o modelo local')}
-p=p||loc(S.topic,S.niche);S.p=p;$('#post').value=`${p.hook}\n\n${p.points.map(x=>'• '+x).join('\n')}\n\n${p.cta}\n\n${p.tags.map(x=>'#'+x).join(' ')}`;rate();auto()}
-function rate(){const tx=$('#post').value,pf=$('#pf').value,h=tx.split('\n')[0]||'',w=tx.split(/\s+/).filter(Boolean).length,tg=(tx.match(/#\p{L}+/gu)||[]).length,em=(tx.match(/\p{Extended_Pictographic}/gu)||[]).length;
+try{p=await ai(`Você é estrategista de redes sociais. Nicho: ${S.niche}. Assunto: "${S.topic.title}". Responda JSON {"hook":"","points":["","",""],"cta":"","tags":["","",""],"alt":["2 ganchos alternativos"]} em português do Brasil. Gancho até 70 caracteres, tom viral, frases curtas, 1-2 emojis.`,{json:1,sys:await agent('content-creator')})}catch{toast('IA indisponível, usei o modelo local')}
+p=p||loc(S.topic,S.niche);S.p=p;$('#post').value=`${p.hook}\n\n${p.points.map(x=>'• '+x).join('\n')}\n\n${p.cta}\n\n${p.tags.map(x=>'#'+x).join(' ')}`;rate();ab();auto()}
+function rate(){cnt();const tx=$('#post').value,pf=$('#pf').value,h=tx.split('\n')[0]||'',w=tx.split(/\s+/).filter(Boolean).length,tg=(tx.match(/#\p{L}+/gu)||[]).length,em=(tx.match(/\p{Extended_Pictographic}/gu)||[]).length;
 const R={ig:[40,120],tt:[20,60],x:[15,40],li:[80,200]}[pf],sn=tx.split(/[.!?\n]+/).filter(Boolean),avg=w/Math.max(1,sn.length);
 const ck=[['Gancho curto (até 70 caracteres)',15,h.length>0&&h.length<=70,'Encurte a primeira linha'],['Gancho com gatilho (número, pergunta, “erro”, “ninguém”)',20,/\d|\?|pare|ninguém|segredo|erro|grátis|nunca|verdade/i.test(h),'Abra com número, pergunta ou quebra de padrão'],[`Tamanho ideal (${R[0]}–${R[1]} palavras)`,15,w>=R[0]&&w<=R[1],'Ajuste o tamanho para a rede'],['1 a 4 emojis',10,em>=1&&em<=4,'Use de 1 a 4 emojis'],['Hashtags na medida',10,pf=='x'?tg>=1&&tg<=2:tg>=3&&tg<=6,pf=='x'?'Use 1 ou 2 hashtags':'Use de 3 a 6 hashtags'],['Chamada para ação',15,/comente|salve|compartilh|siga|marque|envie|me conta|link/i.test(tx),'Peça comentar, salvar ou compartilhar'],['Gera conversa (pergunta)',10,/\?/.test(tx),'Termine com uma pergunta'],['Frases curtas',5,avg<=18,'Quebre frases longas']];
 const sc=ck.reduce((a,c)=>a+(c[2]?c[1]:0),0);$('#num').textContent=sc;$('#ring').style.strokeDashoffset=327*(1-sc/100);
@@ -35,17 +35,17 @@ $('#gen').onclick=gen;$('#post').oninput=rate;$('#pf').onchange=rate;
 /* 3. Imagens */
 const lines=()=>{const p=S.p||{hook:S.niche||'Seu gancho aqui',points:['Ponto 1','Ponto 2','Ponto 3'],cta:'Siga para mais!'};return[p.hook,...p.points,p.cta]};
 function wrap(x,t,w){const o=[];let l='';t.split(' ').forEach(s=>{if(x.measureText(l+' '+s).width>w&&l){o.push(l);l=s}else l=l?l+' '+s:s});o.push(l);return o}
-function slide(x,W,H,txt,sub,k=1,th=S.th){const[a,b]=TH[th],g=x.createLinearGradient(0,0,W,H);g.addColorStop(0,a);g.addColorStop(1,b);x.fillStyle=g;x.fillRect(0,0,W,H);
-if(S.bg){const m=Math.max(W/S.bg.width,H/S.bg.height),w=S.bg.width*m,h=S.bg.height*m;x.drawImage(S.bg,(W-w)/2,(H-h)/2,w,h);x.fillStyle='rgba(10,8,30,.4)';x.fillRect(0,0,W,H)}else{x.fillStyle='rgba(255,255,255,.12)';x.beginPath();x.arc(W*.88,H*.1,W*.36,0,7);x.fill()}
-x.save();x.globalAlpha=Math.min(1,k*2.5);x.translate(W/2,H/2);const s=.94+.06*k;x.scale(s,s);x.textAlign='center';const fs=W*(txt.length>70?.07:.09);x.font=`${S.font=='Unbounded'?800:400} ${fs}px "${S.font}",Arial Black,sans-serif`;x.lineJoin='round';const ls=wrap(x,txt,W*.8);ls.forEach((l,i)=>{const y=(i-(ls.length-1)/2)*fs*1.25;if(S.st){x.lineWidth=fs*.16;x.strokeStyle='#000';x.strokeText(l,0,y)}x.fillStyle=S.col;x.fillText(l,0,y)});x.restore();
-x.fillStyle='rgba(255,255,255,.9)';x.textAlign='center';x.font=`700 ${W*.034}px Figtree,sans-serif`;x.fillText(sub,W/2,H*.95)}
-function drawImg(){const c=$('#cv');[c.width,c.height]=S.fmt;const L=lines();slide(c.getContext('2d'),c.width,c.height,L[S.sl]||L[0],cfg().handle);
+function slide(x,W,H,txt,sub,k=1,th=S.th,p=0,im=S.bg){const[a,b]=TH[th],g=x.createLinearGradient(0,0,W,H);g.addColorStop(0,a);g.addColorStop(1,b);x.fillStyle=g;x.fillRect(0,0,W,H);const tx=S.tx!==false;
+if(im){const m=Math.max(W/im.width,H/im.height)*(1+.12*p),w=im.width*m,h=im.height*m;x.drawImage(im,(W-w)/2,(H-h)/2,w,h);if(tx){const o=x.createLinearGradient(0,0,0,H);o.addColorStop(0,'rgba(10,8,30,.1)');o.addColorStop(1,'rgba(10,8,30,.7)');x.fillStyle=o;x.fillRect(0,0,W,H)}}else{x.fillStyle='rgba(255,255,255,.12)';x.beginPath();x.arc(W*.88,H*.1,W*.36,0,7);x.fill()}
+if(tx){x.save();x.globalAlpha=Math.min(1,k*2.5);x.translate(W/2,im?H*.7:H/2);const s=.94+.06*k;x.scale(s,s);x.textAlign='center';const fs=W*(txt.length>70?.07:.09);x.font=`${S.font=='Unbounded'?800:400} ${fs}px "${S.font}",Arial Black,sans-serif`;x.lineJoin='round';const ls=wrap(x,txt,W*.82);ls.forEach((l,i)=>{const y=(i-(ls.length-1)/2)*fs*1.25;if(S.st){x.lineWidth=fs*.16;x.strokeStyle='#000';x.strokeText(l,0,y)}x.fillStyle=S.col;x.fillText(l,0,y)});x.restore();
+x.fillStyle='rgba(255,255,255,.9)';x.textAlign='center';x.font=`700 ${W*.034}px Figtree,sans-serif`;x.fillText(sub,W/2,H*.95)}}
+function drawImg(){const c=$('#cv');[c.width,c.height]=S.fmt;const L=lines();slide(c.getContext('2d'),c.width,c.height,L[S.sl]||L[0],cfg().handle,1,S.th,0,S.imgs[S.sl]||S.bg);
 $('#slides').innerHTML='';L.forEach((_,i)=>{const b=document.createElement('button');b.className='chip'+(i==S.sl?' on':'');b.textContent=i?(i==L.length-1?'CTA':i):'Capa';b.onclick=()=>{S.sl=i;drawImg()};$('#slides').append(b)})}
 $('#themes').innerHTML=TH.map((t,i)=>`<button class="sw${i?'':' on'}" style="background:linear-gradient(135deg,${t[0]},${t[1]})" aria-label="Tema ${i+1}" data-i="${i}"></button>`).join('');
 $$('.sw').forEach(b=>b.onclick=()=>{S.th=+b.dataset.i;$$('.sw').forEach(x=>x.classList.toggle('on',x==b));drawImg()});
 $('#fmt').onchange=e=>{S.fmt=e.target.value.split(',').map(Number);drawImg()};
 const save=(blob,n)=>{const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=n;a.click()};
-$('#dl').onclick=()=>$('#cv').toBlob(b=>save(b,`pulso-slide-${S.sl+1}.png`));
+$('#dl').onclick=()=>{try{$('#cv').toBlob(b=>save(b,`pulso-slide-${S.sl+1}.png`))}catch{const m=S.imgs[S.sl]||S.bg;toast('Esta imagem bloqueia exportar com texto. Abrindo a imagem original.');if(m)window.open(m.src)}};
 $('#dla').onclick=()=>{const o=S.sl;lines().forEach((_,i)=>setTimeout(()=>{S.sl=i;drawImg();$('#cv').toBlob(b=>save(b,`pulso-slide-${i+1}.png`))},i*400));setTimeout(()=>{S.sl=o;drawImg()},lines().length*400+200)};
 
 /* 4. Vídeo */
@@ -53,7 +53,7 @@ function rec(c,draw,dur,vid){return new Promise(res=>{const s=c.captureStream(30
 const mt=['video/mp4;codecs=avc1','video/webm;codecs=vp9','video/webm'].find(m=>MediaRecorder.isTypeSupported(m)),r=new MediaRecorder(s,{mimeType:mt,videoBitsPerSecond:5e6}),ch=[];
 r.ondataavailable=e=>ch.push(e.data);r.onstop=()=>res({blob:new Blob(ch,{type:mt.split(';')[0]}),ext:mt.includes('mp4')?'mp4':'webm'});r.start();const t0=performance.now();(function f(){const t=(performance.now()-t0)/1000;draw(t);t<dur?requestAnimationFrame(f):r.stop()})()})}
 function show({blob,ext}){const u=URL.createObjectURL(blob);$('#vout').innerHTML=`<video controls playsinline src="${u}"></video><div><a href="${u}" download="pulso-video.${ext}"><button class="pri">Baixar vídeo</button></a></div>`;toast('Vídeo pronto')}
-$('#mk').onclick=async()=>{const c=$('#vc'),x=c.getContext('2d'),L=lines(),D=2.5;toast('Gravando…');show(await rec(c,t=>{const i=Math.min(L.length-1,Math.floor(t/D));slide(x,1080,1920,L[i],cfg().handle,Math.min(1,(t%D)/.5))},L.length*D))};
+$('#mk').onclick=async()=>{const c=$('#vc'),x=c.getContext('2d'),L=lines(),D=2.5;toast('Gravando…');show(await rec(c,t=>{const i=Math.min(L.length-1,Math.floor(t/D));slide(x,1080,1920,L[i],cfg().handle,Math.min(1,(t%D)/.5),S.th,(t%D)/D,S.imgs[i]||S.bg)},L.length*D))};
 $('#file').onchange=e=>{const v=$('#vin');v.src=URL.createObjectURL(e.target.files[0]);v.onloadedmetadata=()=>{$('#ee').value=Math.min(60,Math.floor(v.duration))}};
 $('#ed').onclick=async()=>{const v=$('#vin');if(!v.src)return toast('Escolha um vídeo');const c=$('#vc'),x=c.getContext('2d'),a=+$('#ss').value,b=+$('#ee').value,cap=$('#cap').value;
 v.currentTime=a;await new Promise(r=>v.onseeked=r);v.muted=false;toast('Gravando (o som toca durante o corte)…');v.play();
@@ -76,8 +76,8 @@ $('#send').onclick=async()=>{const m=$('#msg').value.trim();if(!m)return;bub(m,'
 $('#msg').onkeydown=e=>{if(e.key=='Enter')$('#send').click()};
 
 /* 7. Ajustes */
-const c0=cfg();$('#k').value=c0.key;$('#m').value=c0.model;$('#h').value=c0.handle;$('#w').value=c0.hook;$('#r').value=c0.rules;$('#tg').value=c0.tg;
-$('#save').onclick=()=>{st.set('cfg',{key:$('#k').value.trim(),model:$('#m').value.trim()||'gemini-2.0-flash',handle:$('#h').value.trim(),hook:$('#w').value.trim(),tg:$('#tg').value.trim(),rules:$('#r').value});toast('Salvo')};
+const c0=cfg();$('#k').value=c0.key;$('#m').value=c0.model;$('#h').value=c0.handle;$('#w').value=c0.hook;$('#r').value=c0.rules;$('#tg').value=c0.tg;$('#pk').value=c0.pk;
+$('#save').onclick=()=>{st.set('cfg',{key:$('#k').value.trim(),model:$('#m').value.trim()||'gemini-2.0-flash',handle:$('#h').value.trim(),hook:$('#w').value.trim(),tg:$('#tg').value.trim(),pk:$('#pk').value.trim(),rules:$('#r').value});toast('Salvo')};
 $('#niche').onkeydown=e=>{if(e.key=='Enter')$('#go').click()};rate();
 
 /* v2: IA gratuita, imagens, fontes, tema, PWA, Telegram */
@@ -85,15 +85,14 @@ Object.assign(S,{font:'Unbounded',col:'#ffffff',st:true,bg:null,a:null});
 const FONTS=['Unbounded','Bangers','Anton','Bebas Neue','Permanent Marker','Lilita One','Luckiest Guy'];
 $$('.txtbar').forEach(b=>b.innerHTML=`<select class="fsel" aria-label="Fonte da legenda">${FONTS.map(f=>`<option style="font-family:'${f}'">${f}</option>`).join('')}</select><label class="inl">Cor <input type="color" class="fcol" value="#ffffff"></label><label class="inl"><input type="checkbox" class="fst" checked> Contorno</label>`);
 document.addEventListener('input',e=>{const t=e.target;if(t.matches('.fsel'))S.font=t.value;else if(t.matches('.fcol'))S.col=t.value;else if(t.matches('.fst'))S.st=t.checked;else return;$$('.fsel').forEach(x=>x.value=S.font);$$('.fcol').forEach(x=>x.value=S.col);$$('.fst').forEach(x=>x.checked=S.st);document.fonts.load(`40px "${S.font}"`).then(drawImg)});
-const loadImg=u=>new Promise(r=>{const i=new Image();i.crossOrigin='anonymous';i.onload=()=>r(i);i.onerror=()=>r(null);i.src=u});
-async function auto(){const t=S.topic,box=$('#an');box.hidden=false;box.innerHTML='<p class="mut">A IA está pesquisando e analisando…</p>';let a;
+const loadImg=(u,cors=true)=>new Promise(r=>{const i=new Image();if(cors)i.crossOrigin='anonymous';i.taint=!cors;i.onload=()=>r(i);i.onerror=()=>r(null);i.src=u});
+async function auto(){const t=S.topic,box=$('#an');S.imgs=[];box.hidden=false;box.innerHTML='<p class="mut">A IA está pesquisando e analisando…</p>';let a;
 try{a=await ai(`Assunto: "${t.title}". Nicho: ${S.niche}. Rede: ${$('#pf').value}. Seja objetivo. Responda só JSON: {"kw":["3 termos de pesquisa de fotos em inglês"],"img":"prompt em inglês para gerar imagem sem texto: cena, estilo, luz, composição","hora":"melhor horário no Brasil","melhorar":["2 ações curtas para o post"],"cap":"legenda de anúncio com até 6 palavras em português","vid":"1 dica objetiva de edição de vídeo"}`,{json:1,sys:[await agent('social-media-strategist'),await agent('image-prompt-engineer'),await agent('video-optimization')].join('\n---\n')})}catch{a={kw:[t.title,S.niche],img:`${t.title}, ${S.niche}, modern editorial illustration, vibrant colors, no text`,hora:'18h às 21h',melhorar:['Abra com número ou pergunta','Termine pedindo um comentário'],cap:(S.p?.hook||t.title).slice(0,40),vid:'Mostre o gancho nos primeiros 3 segundos'}}
-S.a=a;$('#cap').value=a.cap;box.innerHTML=`<h2>Análise da IA</h2><ul><li>Pesquise por: ${a.kw.join(' · ')}</li><li>Melhor horário: ${a.hora}</li>${a.melhorar.map(x=>`<li>${x}</li>`).join('')}<li>Vídeo: ${a.vid}</li></ul>`;aiImg();photos()}
-async function aiImg(){if(!S.a)return toast('Escolha um assunto antes');const[w,h]=S.fmt;toast('Gerando imagem com IA…');const i=await loadImg(`https://image.pollinations.ai/prompt/${encodeURIComponent(S.a.img)}?width=${w}&height=${h}&nologo=true&seed=${Math.floor(Math.random()*1e6)}`);if(i){S.bg=i;drawImg();toast('Imagem pronta')}else toast('IA de imagem ocupada: tente de novo ou use uma foto')}
+S.a=a;$('#ip').value=a.img;$('#cap').value=a.cap;box.innerHTML=`<h2>Análise da IA</h2><ul><li>Pesquise por: ${a.kw.join(' · ')}</li><li>Melhor horário: ${a.hora}</li>${a.melhorar.map(x=>`<li>${x}</li>`).join('')}<li>Vídeo: ${a.vid}</li></ul>`;aiImg();photos()}
 async function photos(){const k=S.a?.kw?.[0]||S.topic?.title||S.niche;if(!k)return toast('Escolha um assunto antes');let r=[];
 try{const d=await(await fetch(`https://api.openverse.org/v1/images/?q=${encodeURIComponent(k)}&page_size=8&license_type=commercial`)).json();r=d.results.map(x=>({u:x.thumbnail||x.url,by:`${x.creator||'autor desconhecido'} (${x.license||'CC'})`}))}catch{}
 if(!r.length)try{const d=await(await fetch(`https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrnamespace=6&gsrlimit=8&gsrsearch=${encodeURIComponent(k)}&prop=imageinfo&iiprop=url&iiurlwidth=1080&format=json&origin=*`)).json();r=Object.values(d.query.pages).filter(p=>p.imageinfo?.[0]?.thumburl).map(p=>({u:p.imageinfo[0].thumburl,by:'Wikimedia Commons'}))}catch{}
-const g=$('#gal');g.innerHTML=r.length?'':'<span class="mut">Nenhuma foto encontrada.</span>';r.forEach(p=>{const b=document.createElement('button');b.innerHTML=`<img src="${p.u}" alt="${k}" loading="lazy">`;b.onclick=async()=>{const i=await loadImg(p.u);if(i){S.bg=i;drawImg();$('#credit').textContent='Foto: '+p.by}else toast('Esta foto não permite edição')};g.append(b)})}
+const g=$('#gal');g.innerHTML=r.length?'':'<span class="mut">Nenhuma foto encontrada.</span>';r.forEach(p=>{const b=document.createElement('button');b.innerHTML=`<img src="${p.u}" alt="${k}" loading="lazy">`;b.onclick=async()=>{const i=await loadImg(p.u);if(i){S.bg=i;S.imgs=[];drawImg();$('#credit').textContent='Foto: '+p.by}else toast('Esta foto não permite edição')};g.append(b)})}
 $('#aiimg').onclick=aiImg;$('#ph').onclick=photos;$('#nobg').onclick=()=>{S.bg=null;$('#credit').textContent='';drawImg()};
 function theme(t){document.documentElement.dataset.theme=t;st.set('theme',t);$('#th').textContent=t=='light'?'☾ Escuro':'☀ Claro';document.querySelector('meta[name=theme-color]').content=t=='light'?'#F6F2FF':'#12102B'}
 $('#th').onclick=()=>theme(document.documentElement.dataset.theme=='light'?'dark':'light');theme(st.get('theme','dark'));
@@ -116,3 +115,41 @@ catch{const n=50+(vert?15:0)+(dur>=7&&dur<=45?15:0)+(f.bright>70&&f.bright<190?1
 const ini=Math.max(0,Math.min(+a.ini||0,dur-1)),fim=Math.max(ini+1,Math.min(+a.fim||dur,dur));$('#ss').value=ini;$('#ee').value=fim;if(a.legenda)$('#cap').value=a.legenda;
 box.innerHTML=`<h2>Análise do vídeo: nota ${a.nota}/100</h2><ul><li>${a.gancho}</li><li>${a.ritmo}</li><li>${a.qualidade}</li>${(a.melhorar||[]).map(x=>`<li>${x}</li>`).join('')}</ul><p class="mut sm">Aplicado automaticamente: corte de ${ini}s a ${fim}s e legenda “${a.legenda||''}”.${a.titulo?' Título sugerido: '+a.titulo+'.':''}${a.tags?.length?' '+a.tags.map(t=>'#'+String(t).replace(/^#/,'')).join(' '):''}</p>`}
 $('#file').addEventListener('change',()=>$('#vin').addEventListener('loadedmetadata',()=>vAnalyze(),{once:true}));$('#vab').onclick=vAnalyze;
+
+/* v4: piloto automático, ganchos A/B, biblioteca, contador, memória */
+['Tecnologia','Inteligência artificial','Fitness','Finanças','Games','Marketing digital','Moda','Culinária'].forEach(n=>{const b=document.createElement('button');b.className='chip';b.textContent=n;b.onclick=()=>{$('#niche').value=n;$('#go').click()};$('#nch').append(b)});
+$('#pilot').onclick=async()=>{if(!$('#niche').value.trim())$('#niche').value='Tecnologia';toast('Piloto automático ligado');await $('#go').onclick();$('#topics .topic button')?.click()};
+const build=(p,h)=>`${h}\n\n${p.points.map(x=>'• '+x).join('\n')}\n\n${p.cta}\n\n${p.tags.map(x=>'#'+x).join(' ')}`;
+function ab(){const p=S.p;if(!p)return;const hs=[p.hook,...(p.alt||[]).slice(0,2)].filter(Boolean),sc=hs.map(h=>{$('#post').value=build(p,h);rate();return+$('#num').textContent}),best=sc.indexOf(Math.max(...sc)),box=$('#ab');
+const pick=i=>{p.hook=hs[i];$('#post').value=build(p,hs[i]);rate();keep();[...box.children].forEach((c,j)=>c.classList.toggle('on',j==i))};box.innerHTML='';
+hs.forEach((h,i)=>{const b=document.createElement('button');b.className='chip';b.textContent=`Gancho ${'ABC'[i]} · nota ${sc[i]}`;b.title=h;b.onclick=()=>pick(i);box.append(b)});pick(best);toast(`A IA escolheu o gancho ${'ABC'[best]} (maior nota)`)}
+function cnt(){const L={ig:2200,tt:2200,x:280,li:3000}[$('#pf').value],n=$('#post').value.length,e=$('#cnt');e.textContent=`${n}/${L} caracteres`;e.style.color=n>L?'var(--pk)':''}
+$('#cp').onclick=()=>{navigator.clipboard?.writeText($('#post').value);toast('Texto copiado')};
+const lib=()=>st.get('lib',[]);
+function showLib(){const L=lib(),b=$('#lib');b.innerHTML=L.length?'':'<p class="mut">Nada salvo ainda. Gere um post e toque em “Salvar na biblioteca”.</p>';
+L.forEach((x,i)=>{const e=document.createElement('div');e.className='topic';e.innerHTML='<b></b><span><button>Abrir</button><button>Excluir</button></span><span class="mut sm"></span>';e.querySelector('b').textContent=x.text.split('\n')[0];e.querySelector('.sm').textContent=`${x.niche||'sem nicho'} · nota ${x.score} · ${x.date}`;const[bo,bd]=e.querySelectorAll('button');
+bo.onclick=()=>{S.niche=x.niche;S.p=x.p;S.topic=x.topic;$('#post').value=x.text;$('#ctitle').textContent='Assunto: '+(x.topic?.title||'');rate();toast('Post aberto')};bd.onclick=()=>{L.splice(i,1);st.set('lib',L);showLib()};b.append(e)})}
+$('#sv').onclick=()=>{const t=$('#post').value;if(!t.trim())return toast('Gere um post antes');const L=lib();L.unshift({text:t,niche:S.niche,p:S.p,topic:S.topic,score:+$('#num').textContent,date:new Date().toLocaleDateString('pt-BR')});st.set('lib',L.slice(0,50));showLib();toast('Salvo na biblioteca')};showLib();
+function keep(){st.set('last',{niche:S.niche,text:$('#post').value,p:S.p,topic:S.topic})}
+$('#post').addEventListener('input',keep);
+const L0=st.get('last');if(L0?.text){S.niche=L0.niche||'';S.p=L0.p;S.topic=L0.topic;$('#niche').value=S.niche;$('#post').value=L0.text;if(S.topic)$('#ctitle').textContent='Assunto: '+S.topic.title;rate()}
+
+/* v5: imagens por IA dinâmicas (fila, estilos, variações, imagem por slide) */
+S.imgs=[];S.tx=true;
+const STY={'':'','Fotorrealista':'ultra realistic photo, cinematic lighting, 35mm, sharp focus','Ilustração 3D':'3D render, soft studio lighting, vibrant colors, clay style','Neon cyberpunk':'neon cyberpunk, glowing lights, dark background, futuristic','Minimalista':'minimal flat vector illustration, bold shapes, clean background','Arte digital':'epic digital painting, dramatic lighting, highly detailed','Aquarela':'watercolor illustration, soft pastel colors'};
+$('#is').innerHTML=Object.keys(STY).map(k=>`<option value="${k}">${k||'Estilo automático'}</option>`).join('');
+$('#tx').onchange=e=>{S.tx=e.target.checked;drawImg()};
+const timed=(p,ms)=>Promise.race([p,new Promise(r=>setTimeout(()=>r(null),ms))]);
+let lastImg=0,qchain=Promise.resolve();const queue=fn=>{const p=qchain.then(fn,fn);qchain=p.catch(()=>{});return p};
+function fetchImg(pr,w,h,seed){const c=cfg(),k=Math.min(1,1024/Math.max(w,h));w=Math.round(w*k);h=Math.round(h*k);
+return queue(async()=>{const wait=Math.max(0,lastImg+(c.pk?1500:16500)-Date.now());for(let s=Math.ceil(wait/1000);s>0;s--){$('#imgst').textContent=`Aguardando ${s}s: limite do serviço gratuito (com chave Pollinations não há espera).`;await new Promise(r=>setTimeout(r,1000))}
+$('#imgst').textContent='Gerando imagem com IA… pode levar até 40s';lastImg=Date.now();const e=encodeURIComponent(pr),u=(c.pk?`https://gen.pollinations.ai/image/${e}?key=${c.pk}&`:`https://image.pollinations.ai/prompt/${e}?`)+`width=${w}&height=${h}&seed=${seed}&nologo=true&model=flux`;
+let i=await timed(loadImg(u),70000);if(!i)i=await timed(loadImg(u,false),70000);$('#imgst').textContent=i?'Imagem pronta.':'Serviço ocupado ou limite atingido. Aguarde alguns segundos e tente de novo.';return i})}
+const fullPrompt=()=>[$('#ip').value.trim()||S.a?.img||'',STY[$('#is').value]||''].filter(Boolean).join(', ');
+const rnd=()=>Math.floor(Math.random()*1e6);
+async function aiImg(){const pr=fullPrompt();if(!pr)return toast('Escolha um assunto ou descreva a imagem');const i=await fetchImg(pr,...S.fmt,rnd());if(i){S.bg=i;S.imgs=[];drawImg();toast('Imagem pronta')}else toast('Não foi possível gerar agora')}
+$('#var').onclick=async()=>{const pr=fullPrompt();if(!pr)return toast('Escolha um assunto ou descreva a imagem');const g=$('#gal');g.innerHTML='';
+for(let n=0;n<4;n++){$('#credit').textContent=`Variação ${n+1} de 4`;const i=await fetchImg(pr,...S.fmt,rnd());if(!i){toast('Serviço ocupado. Tente de novo em instantes');break}
+const b=document.createElement('button');b.innerHTML=`<img src="${i.src}" alt="Variação ${n+1}">`;b.onclick=()=>{S.bg=i;S.imgs=[];drawImg()};g.append(b);if(!n){S.bg=i;S.imgs=[];drawImg()}}$('#credit').textContent='Toque em uma variação para usar.'};
+$('#all').onclick=async()=>{const pr=fullPrompt(),L=lines();if(!pr)return toast('Escolha um assunto ou descreva a imagem');S.imgs=[];
+for(let n=0;n<L.length;n++){$('#credit').textContent=`Slide ${n+1} de ${L.length}`;const i=await fetchImg(`${pr}, scene inspired by: ${L[n].slice(0,90)}`,...S.fmt,rnd());if(!i){toast('Serviço ocupado. Os demais slides ficam com a imagem principal');break}S.imgs[n]=i;drawImg()}$('#credit').textContent=''};

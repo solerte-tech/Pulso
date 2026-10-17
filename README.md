@@ -29,3 +29,11 @@ Para testar local: abra `index.html` no navegador.
 
 ## v3
 - **Análise de vídeo por IA:** ao subir um vídeo, o app extrai 6 quadros, mede brilho e movimento, envia à IA (Pollinations ou Gemini) e devolve nota, avaliação do gancho, ritmo, qualidade, corte ideal, legenda e título. Corte e legenda são aplicados sozinhos.
+
+## v4
+- **Piloto automático**, atalhos de nicho, **3 ganchos com nota** (a IA escolhe o melhor), contador de caracteres por rede, copiar, **biblioteca de posts** e memória do último trabalho.
+- Logo e ícone novos. Guia do bot 24h em `docs/GUIA-BOT-24H.md`.
+
+## v5 · imagens por IA
+- Fila automática respeitando o limite gratuito (1 imagem a cada ~15 s sem chave). Com chave grátis em enter.pollinations.ai (use a chave pública `pk_`), a espera some.
+- Prompt editável, 6 estilos, **4 variações**, **imagem diferente em cada slide do carrossel**, texto sobre a imagem opcional e **zoom animado (Ken Burns)** nos vídeos.
